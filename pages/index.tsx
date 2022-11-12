@@ -2,9 +2,15 @@ import Head from 'next/head'
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
 
-import { PrismaClient } from '@prisma/client'
 import { useState } from 'react';
-const prisma  = new PrismaClient();
+import { prisma } from '../lib/prisma';
+
+interface IUser
+{
+  email: string;
+  name: string;
+  avatar?: string;
+}
 
 export async function getServerSideProps()
 {
@@ -17,10 +23,33 @@ export async function getServerSideProps()
 }
 
 export default function Home(schedule : any)
- {
+{
   const [agenda, setAgenda] = useState(schedule);
 
-  console.log(agenda)
+  const create = async (data:IUser) => {
+    try 
+    {
+      const response = await fetch('/api/user/create',
+      {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers:{
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if(!response.ok)
+      {
+        throw new Error(response.statusText);
+      }
+
+      return await response.json();
+    } 
+    catch (error) 
+    {
+      console.log('Failure')
+    }
+  }
 
   return (
     <div className={styles.container}>
@@ -75,9 +104,10 @@ export default function Home(schedule : any)
             href="#"
             rel="noopener noreferrer"
             className={styles.card}
+            onClick={() => create({email:'almir@gmail.com', name: 'Almir Sater', avatar:'https://www.torredevigilancia.com/wp-content/uploads/2019/10/coringa-55.jpg'})}
           >
             <h2>Agenda</h2>
-            <p>
+            <p >
               {agenda.schedule[0].order}
             </p>
             <p>
