@@ -2,7 +2,26 @@ import Head from 'next/head'
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
 
-export default function Home() {
+import { PrismaClient } from '@prisma/client'
+import { useState } from 'react';
+const prisma  = new PrismaClient();
+
+export async function getServerSideProps()
+{
+  const schedule = await prisma.schedule.findMany();
+  return{
+    props:{
+      schedule: JSON.parse(JSON.stringify(schedule))
+    }
+  }
+}
+
+export default function Home(schedule : any)
+ {
+  const [agenda, setAgenda] = useState(schedule);
+
+  console.log(agenda)
+
   return (
     <div className={styles.container}>
       <Head>
@@ -49,6 +68,20 @@ export default function Home() {
             <h2>Deploy &rarr;</h2>
             <p>
               Instantly deploy your Next.js site to a public URL with Vercel.
+            </p>
+          </a>
+
+          <a
+            href="#"
+            rel="noopener noreferrer"
+            className={styles.card}
+          >
+            <h2>Agenda</h2>
+            <p>
+              {agenda.schedule[0].order}
+            </p>
+            <p>
+              {agenda.schedule[0].day}
             </p>
           </a>
         </div>
