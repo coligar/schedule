@@ -108,10 +108,10 @@ export default function Home(schedule : any)
           >
             <h2>Agenda</h2>
             <p >
-              {agenda.schedule[0].order}
+              
             </p>
             <p>
-              {agenda.schedule[0].day}
+             
             </p>
           </a>
         </div>
