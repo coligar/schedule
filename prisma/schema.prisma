@@ -3,11 +3,20 @@
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["referentialIntegrity"]
 }
 
+//datasource db {
+//  provider = "sqlite"
+//  url      = env("DATABASE_URL")
+//}
+
+
+
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider = "mysql"
+  url = env("DATABASE_URL")
+  referentialIntegrity = "prisma"
 }
 
 model Schedule{
@@ -30,12 +39,12 @@ model User{
   email String @unique
   name String
   avatar String
-  //role Role @default(USER)
+  role Role @default(USER)
   schedules Schedule[]
   createdAt DateTime @default(now())
 }
 
-//enum Role {
-//  USER
-//  ADMIN
-//}
+enum Role {
+  USER
+  ADMIN
+}
