@@ -2,7 +2,55 @@ import Head from 'next/head'
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
 
-export default function Home() {
+import { useState } from 'react';
+import { prisma } from '../lib/prisma';
+
+interface IUser
+{
+  email: string;
+  name: string;
+  avatar?: string;
+}
+
+export async function getServerSideProps()
+{
+  const schedule = await prisma.schedule.findMany();
+  return{
+    props:{
+      schedule: JSON.parse(JSON.stringify(schedule))
+    }
+  }
+}
+
+export default function Home(schedule : any)
+{
+  const [agenda, setAgenda] = useState(schedule);
+
+  const create = async (data:IUser) => {
+    try 
+    {
+      const response = await fetch('/api/user/create',
+      {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers:{
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if(!response.ok)
+      {
+        throw new Error(response.statusText);
+      }
+
+      return await response.json();
+    } 
+    catch (error) 
+    {
+      console.log('Failure')
+    }
+  }
+
   return (
     <div className={styles.container}>
       <Head>
@@ -49,6 +97,21 @@ export default function Home() {
             <h2>Deploy &rarr;</h2>
             <p>
               Instantly deploy your Next.js site to a public URL with Vercel.
+            </p>
+          </a>
+
+          <a
+            href="#"
+            rel="noopener noreferrer"
+            className={styles.card}
+            onClick={() => create({email:'marisa@gmail.com', name: 'Marisa Sater', avatar:'https://www.torredevigilancia.com/wp-content/uploads/2019/10/coringa-55.jpg'})}
+          >
+            <h2>Agenda</h2>
+            <p >
+              
+            </p>
+            <p>
+             
             </p>
           </a>
         </div>
