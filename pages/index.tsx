@@ -1,6 +1,8 @@
 import Head from 'next/head'
 import Image from 'next/image'
+import useSWR, { Key, Fetcher } from 'swr'
 import styles from '../styles/Home.module.css'
+import axios from 'axios'
 
 import { useState } from 'react';
 import { prisma } from '../lib/prisma';
@@ -15,17 +17,23 @@ interface IUser
 
 export async function getServerSideProps()
 {
-  const schedule = await prisma.schedule.findMany();
+  const schedule = await prisma.schedule.findMany()
+  const users = await prisma.user.findMany()
   return{
     props:{
-      schedule: JSON.parse(JSON.stringify(schedule))
+      schedule: JSON.parse(JSON.stringify(schedule)),
+      users: JSON.parse(JSON.stringify(users)),
     }
   }
 }
 
-export default function Home(schedule : any)
+const fetcher = (url: string) => axios.get(url).then(res => res.data)
+
+
+export default function Home(schedule : any, users: any)
 {
   const [agenda, setAgenda] = useState(schedule);
+  const [user, setUser] = useState(users)
 
   const create = async (data:IUser) => {
     try 
@@ -51,6 +59,11 @@ export default function Home(schedule : any)
       console.log('Failure')
     }
   }
+
+
+  const { data, error } = useSWR('/api/user/get', fetcher)
+  if(error) return <div>Ocorreu um erro</div>
+  if(!data) return <div>carregando...</div>
 
   return (
     <div className={styles.container}>
@@ -114,6 +127,20 @@ export default function Home(schedule : any)
             <p>
              
             </p>
+          </a>
+
+          <a
+          href='#'
+          rel="noopener noreferrer"
+          className={styles.card}
+          >
+            <h2>usuários</h2>
+            <ul>
+            {data.map((user:any) => (
+              <li key={user.id}>{user.name}</li>
+            ))}
+            </ul>
+
           </a>
         </div>
       </main>
