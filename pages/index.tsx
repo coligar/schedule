@@ -9,6 +9,7 @@ interface IUser
 {
   email: string;
   name: string;
+  role?: string;
   avatar?: string;
 }
 
@@ -104,7 +105,7 @@ export default function Home(schedule : any)
             href="#"
             rel="noopener noreferrer"
             className={styles.card}
-            onClick={() => create({email:'simone@gmail.com', name: 'Simone Corrêa', avatar:'https://www.torredevigilancia.com/wp-content/uploads/2019/10/coringa-55.jpg'})}
+            onClick={() => create({email:'pedro@gmail.com', name: 'Pedro Guilherme', role:'ADMIN', avatar:'https://www.torredevigilancia.com/wp-content/uploads/2019/10/coringa-55.jpg'})}
           >
             <h2>Agenda</h2>
             <p >

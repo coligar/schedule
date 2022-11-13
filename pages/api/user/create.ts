@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(req: NextApiRequest, resp: NextApiResponse)
 {
-    const { email, name, avatar } = req.body
+    const { email, name, role, avatar } = req.body
 
     try 
     {
@@ -18,6 +18,7 @@ export default async function handler(req: NextApiRequest, resp: NextApiResponse
             {
                 email, 
                 name,
+                role,
                 avatar,
             }
         })
