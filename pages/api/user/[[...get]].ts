@@ -35,6 +35,7 @@ export default async function handler(req: NextApiRequest, resp: NextApiResponse
     } 
     catch (error:any) 
     {
-        resp.status(error.code).json({message:error.status.message})
+        console.log(error)
+        resp.status(error.code).json({message:error})
     }
 }
