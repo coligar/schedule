@@ -6,6 +6,7 @@ import axios from 'axios'
 
 import { useState } from 'react';
 import { prisma } from '../lib/prisma';
+import { createUnparsedSourceFile } from 'typescript'
 
 interface IUser
 {
@@ -33,8 +34,8 @@ const fetcher = (url: string) => axios.get(url).then(res => res.data)
 export default function Home(users: any, schedule:any)
 {
   const [agenda, setAgenda] = useState(schedule);
-  const [user, setUser] = useState(users)
-
+  const [usuario, setUser] = useState(users)
+  console.log(agenda, usuario)
 
   const create = async (data:IUser) => {
     try 
@@ -62,9 +63,10 @@ export default function Home(users: any, schedule:any)
   }
 
 
-  const { data, error } = useSWR('/api/user/get/', fetcher)
+  const { data:user, error } = useSWR('/api/user', fetcher)
+  const { data:schedules} = useSWR('/api/schedule', fetcher)
+  if(!user) return <div>carregando...</div>
   if(error) return <div>Ocorreu um erro</div>
-  if(!data) return <div>carregando...</div>
 
   return (
     <div className={styles.container}>
@@ -119,7 +121,7 @@ export default function Home(users: any, schedule:any)
             href="#"
             rel="noopener noreferrer"
             className={styles.card}
-            onClick={() => create({email:'alexandre_noronha@gmail.com', name: 'Alexandre Corrêa', role:'ADMIN', avatar:'https://www.torredevigilancia.com/wp-content/uploads/2019/10/coringa-55.jpg'})}
+            onClick={() => create({email:'mariac@gmail.com', name: 'Maria Tertulina', role:'USER', avatar:'https://www.torredevigilancia.com/wp-content/uploads/2019/10/coringa-55.jpg'})}
           >
             <h2>Agenda</h2>
             <ul>
@@ -136,8 +138,8 @@ export default function Home(users: any, schedule:any)
           >
             <h2>usuários</h2>
             <ul>
-            {data.map((user:any) => (
-              <li key={user.id}>{user.name}</li>
+            {user.map((user:any) => (
+              <li key={user.id}>{user.name} - Role: {user.role.toLowerCase()}</li>
             ))}
             </ul>
 

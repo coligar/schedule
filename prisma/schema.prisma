@@ -16,7 +16,7 @@ model Schedule {
   starttime DateTime @db.Time(0)
   endtime   DateTime @db.Time(0)
   area      String
-  type      String
+  type      Status   @default(ATIVO)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   userId    String
@@ -32,6 +32,13 @@ model User {
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   schedules Schedule[]
+}
+
+enum Status {
+  ATIVO
+  REAGENDADO
+  CANCELADO
+  FINALIZADO
 }
 
 enum Role {

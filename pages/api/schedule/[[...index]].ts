@@ -1,4 +1,3 @@
-import { Split } from './../../../node_modules/type-fest/ts41/camel-case.d';
 import { prisma } from "../../../lib/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 
@@ -13,24 +12,25 @@ export default async function handler(req: NextApiRequest, resp: NextApiResponse
             return resp.status(405).json({message:'Method not allowed'})
         }
 
-        let users:any;
+        let schedules:any;
 
         if(get?.length === 1)
         {
-            users = await prisma.user.findMany(
+            schedules = await prisma.schedule.findMany(
             {
-                orderBy:{name:'asc'}
+                orderBy:{day:'asc'},
+                where:{type:'ATIVO'}
             })
         }
         else
         {
-            users = await prisma.user.findMany(
+            schedules = await prisma.schedule.findMany(
             {
                 where:{id:get?.[1]}
             })
         }
         
-        resp.status(200).json(users)
+        resp.status(200).json(schedules)
         
     } 
     catch (error:any) 
