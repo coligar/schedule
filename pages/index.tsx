@@ -35,7 +35,6 @@ export default function Home(users: any, schedule:any)
   const [agenda, setAgenda] = useState(schedule);
   const [user, setUser] = useState(users)
 
-  console.log(schedule)
 
   const create = async (data:IUser) => {
     try 
