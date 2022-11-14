@@ -30,10 +30,12 @@ export async function getServerSideProps()
 const fetcher = (url: string) => axios.get(url).then(res => res.data)
 
 
-export default function Home(schedule : any, users: any)
+export default function Home(users: any, schedule:any)
 {
   const [agenda, setAgenda] = useState(schedule);
   const [user, setUser] = useState(users)
+
+  console.log(schedule)
 
   const create = async (data:IUser) => {
     try 
@@ -61,7 +63,7 @@ export default function Home(schedule : any, users: any)
   }
 
 
-  const { data, error } = useSWR('/api/user/get', fetcher)
+  const { data, error } = useSWR('/api/user/get/', fetcher)
   if(error) return <div>Ocorreu um erro</div>
   if(!data) return <div>carregando...</div>
 
@@ -118,15 +120,14 @@ export default function Home(schedule : any, users: any)
             href="#"
             rel="noopener noreferrer"
             className={styles.card}
-            onClick={() => create({email:'pedro@gmail.com', name: 'Pedro Guilherme', role:'ADMIN', avatar:'https://www.torredevigilancia.com/wp-content/uploads/2019/10/coringa-55.jpg'})}
+            onClick={() => create({email:'alexandre_noronha@gmail.com', name: 'Alexandre Corrêa', role:'ADMIN', avatar:'https://www.torredevigilancia.com/wp-content/uploads/2019/10/coringa-55.jpg'})}
           >
             <h2>Agenda</h2>
-            <p >
-              
-            </p>
-            <p>
-             
-            </p>
+            <ul>
+            {(agenda) &&
+             <span>olá</span>
+            }
+            </ul>
           </a>
 
           <a
