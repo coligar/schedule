@@ -1,12 +1,9 @@
 import Head from 'next/head'
 import Image from 'next/image'
-import useSWR from 'swr'
 import styles from '../styles/Home.module.css'
-import axios from 'axios'
-
 import { useState } from 'react';
 import { prisma } from '../lib/prisma';
-import { createUnparsedSourceFile } from 'typescript'
+import { useGetData } from '../hooks/useRequest';
 
 interface IUser
 {
@@ -28,15 +25,17 @@ export async function getServerSideProps()
   }
 }
 
-const fetcher = (url: string) => axios.get(url).then(res => res.data)
 
 
-export default function Home(users: any, schedule:any)
+
+export default function Home(props:any)
 {
-  const [agenda, setAgenda] = useState(schedule);
-  const [usuario, setUser] = useState(users)
-  console.log(agenda, usuario)
+  const [agendas, setAgenda] = useState(props.schedule)
+  const [usuarios, setUser] = useState(props.users)
+  const {data: user} = useGetData('/api/user')
+  const {data: schedule} = useGetData('api/schedule')
 
+  console.log(user, schedule)
   const create = async (data:IUser) => {
     try 
     {
@@ -61,13 +60,6 @@ export default function Home(users: any, schedule:any)
       console.log('Failure')
     }
   }
-
-
-  const { data:user, error } = useSWR('/api/user', fetcher)
-  const { data:schedules} = useSWR('/api/schedule', fetcher)
-  if(!user) return <div>carregando...</div>
-  if(error) return <div>Ocorreu um erro</div>
-
   return (
     <div className={styles.container}>
       <Head>
@@ -92,7 +84,7 @@ export default function Home(users: any, schedule:any)
             <p>Find in-depth information about Next.js features and API.</p>
           </a>
 
-          <a href="https://nextjs.org/learn" className={styles.card}>
+          <a href="#" className={styles.card}>
             <h2>Learn &rarr;</h2>
             <p>Learn about Next.js in an interactive course with quizzes!</p>
           </a>
@@ -125,9 +117,14 @@ export default function Home(users: any, schedule:any)
           >
             <h2>Agenda</h2>
             <ul>
-            {(agenda) &&
-             <span>olá</span>
-            }
+              {((!schedule || schedule === undefined) &&
+                <li>Carregando</li>
+              )}
+              { (schedule && schedule !== undefined) &&
+                schedule.map((agenda:any) =>(
+                  <li key={agenda.id}>{agenda.day}</li>
+                ))
+              }
             </ul>
           </a>
 
@@ -138,9 +135,13 @@ export default function Home(users: any, schedule:any)
           >
             <h2>usuários</h2>
             <ul>
-            {user.map((user:any) => (
-              <li key={user.id}>{user.name} - Role: {user.role.toLowerCase()}</li>
-            ))}
+              {((!user || user === undefined) &&
+                <li>Carregando</li>
+              )}
+              { (user && user !== undefined) &&
+                user.map((user:any) => (
+                <li key={user.id}>{user.name} - Role: {user.role.toLowerCase()}</li>
+              ))}
             </ul>
 
           </a>
