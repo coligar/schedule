@@ -13,10 +13,11 @@ interface IUser
   avatar?: string;
 }
 
+
 export async function getServerSideProps()
 {
-  const schedule = await prisma.schedule.findMany()
   const users = await prisma.user.findMany()
+  const schedule = await prisma.schedule.findMany()
   return{
     props:{
       schedule: JSON.parse(JSON.stringify(schedule)),
@@ -26,16 +27,14 @@ export async function getServerSideProps()
 }
 
 
-
-
 export default function Home(props:any)
 {
   const [agendas, setAgenda] = useState(props.schedule)
   const [usuarios, setUser] = useState(props.users)
-  const {data: user} = useGetData('/api/user')
+  const {data: user} = useGetData('api/user')
   const {data: schedule} = useGetData('api/schedule')
 
-  console.log(user, schedule)
+  console.log(agendas, usuarios)
   const create = async (data:IUser) => {
     try 
     {

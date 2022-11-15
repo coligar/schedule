@@ -19,7 +19,10 @@ export default async function handler(req: NextApiRequest, resp: NextApiResponse
             schedules = await prisma.schedule.findMany(
             {
                 orderBy:{day:'asc'},
-                where:{type:'ATIVO'}
+                where:{status:'ACTIVE'},
+                include:{
+                    user: true
+                }
             })
         }
         else

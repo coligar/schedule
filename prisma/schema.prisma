@@ -11,37 +11,112 @@ datasource db {
 }
 
 model Schedule {
-  id        String   @id @default(cuid())
-  day       DateTime @db.Date
-  starttime DateTime @db.Time(0)
-  endtime   DateTime @db.Time(0)
-  area      String
-  type      Status   @default(ATIVO)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  id              String         @id @default(cuid())
+  day             DateTime       @db.Date
+  starttime       DateTime       @db.Time(0)
+  endtime         DateTime       @db.Time(0)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  userId          String?        @unique
+  status          StatusSchedule @default(ACTIVE)
+  interviewer     String?        @unique
+  schedule_typeId String?        @unique
+  area_activityId String?        @unique
+  schedule_type   ScheduleType?  @relation(fields: [schedule_typeId], references: [id])
+  area_activity   AreaActivity?  @relation(fields: [area_activityId], references: [id])
+  user            User?          @relation(fields: [userId], references: [id])
 }
 
 model User {
-  id        String     @id @default(cuid())
-  email     String     @unique
-  name      String
-  role      Role       @default(USER)
-  avatar    String?
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  schedules Schedule[]
+  id                    String        @id @default(cuid())
+  email                 String        @unique
+  name                  String
+  role                  Role          @default(USER)
+  avatar                String?
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+  account_verified      Boolean       @default(false)
+  account_verified_date DateTime?
+  birth_date            DateTime?     @db.Date
+  cpf                   String?
+  have_desability       Boolean       @default(false)
+  lastname              String?
+  own_car               Boolean       @default(false)
+  password              String?
+  rg                    String?
+  sex                   Sex?
+  status                StatusUser    @default(NOTVERIFIED)
+  area_activityId       String?       @unique
+  area_activity         AreaActivity? @relation(fields: [area_activityId], references: [id])
+  schedule              Schedule?
+  address               Address[]
+  contact               Contact[]
 }
 
-enum Status {
-  ATIVO
-  REAGENDADO
-  CANCELADO
-  FINALIZADO
+model AreaActivity {
+  id       String    @id @default(cuid())
+  name     String    @unique
+  color    String    @unique
+  schedule Schedule?
+  user     User?
+}
+
+model Address {
+  id         String  @id @default(cuid())
+  zip        String
+  address    String
+  number     String
+  complement String?
+  district   String
+  city       String
+  uf         String
+  userId     String
+  user       User    @relation(fields: [userId], references: [id])
+}
+
+model Contact {
+  id                 String      @id @default(cuid())
+  email              String?     @unique
+  phone              String?
+  userId             String
+  contact_type       ContactType @default(RESIDENTIAL)
+  is_default_contact Boolean     @default(false)
+  user               User        @relation(fields: [userId], references: [id])
+}
+
+model ScheduleType {
+  id       String    @id @default(cuid())
+  name     String    @unique
+  icon     String    @unique
+  color    String    @unique
+  schedule Schedule?
+}
+
+enum StatusUser {
+  ACTIVE
+  CANCELED
+  NOTVERIFIED
+  INACTIVE
+}
+
+enum StatusSchedule {
+  ACTIVE
+  RESCHEDULED
+  CANCELED
+  FINISHED
 }
 
 enum Role {
   USER
   ADMIN
+}
+
+enum Sex {
+  F
+  M
+}
+
+enum ContactType {
+  RESIDENTIAL
+  COMMERCIAL
 }
