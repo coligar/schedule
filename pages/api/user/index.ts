@@ -16,7 +16,7 @@ export default async function handler(req: NextApiRequest, resp: NextApiResponse
 
         users = await prisma.user.findMany(
         {
-            orderBy:{name:'asc'},
+            orderBy:{role:'desc'},
             include:{address:true}
         })
         
