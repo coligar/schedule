@@ -14,24 +14,15 @@ export default async function handler(req: NextApiRequest, resp: NextApiResponse
 
         let schedules:any;
 
-        if(get?.length === 1)
+        schedules = await prisma.schedule.findMany(
         {
-            schedules = await prisma.schedule.findMany(
-            {
-                orderBy:{day:'asc'},
-                where:{status:'ACTIVE'},
-                include:{
-                    user: true
-                }
-            })
-        }
-        else
-        {
-            schedules = await prisma.schedule.findMany(
-            {
-                where:{id:get?.[1]}
-            })
-        }
+            orderBy:{day:'asc'},
+            where:{status:'ACTIVE'},
+            include:{
+                user: true
+            }
+        })
+        
         
         resp.status(200).json(schedules)
         

@@ -14,21 +14,11 @@ export default async function handler(req: NextApiRequest, resp: NextApiResponse
 
         let users:any;
 
-        if(get?.length === 1)
+        users = await prisma.user.findMany(
         {
-            users = await prisma.user.findMany(
-            {
-                orderBy:{name:'asc'},
-                include:{address:true}
-            })
-        }
-        else
-        {
-            users = await prisma.user.findMany(
-            {
-                where:{id:get?.[1]}
-            })
-        }
+            orderBy:{name:'asc'},
+            include:{address:true}
+        })
         
         resp.status(200).json(users)
         
