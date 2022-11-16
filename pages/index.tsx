@@ -4,7 +4,8 @@ import styles from '../styles/Home.module.css'
 import { useState } from 'react';
 import { prisma } from '../lib/prisma';
 import { useGetData } from '../hooks/useRequest';
-import ActivityForm from '../components/form/activity';
+import ActivityForm from '../components/form/activities/activityForm';
+import UserSimpleForm from '../components/form/users/userSimpleForm';
 
 interface IUser
 {
@@ -72,45 +73,16 @@ export default function Home(props:any)
 
       <main className={styles.main}>
         <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
+          Página de integração de funcionalidades
         </h1>
 
         <p className={styles.description}>
-          Get started by editing{' '}
+          Listagem e cadastro{' '}
           <code className={styles.code}>pages/index.tsx</code>
         </p>
 
         <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h2>Documentation &rarr;</h2>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="#" className={styles.card}>
-            <h2>Learn &rarr;</h2>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/canary/examples"
-            className={styles.card}
-          >
-            <h2>Examples &rarr;</h2>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.card}
-          >
-            <h2>Deploy &rarr;</h2>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-
+         
           <a
             href="#"
             rel="noopener noreferrer"
@@ -129,11 +101,7 @@ export default function Home(props:any)
             </ul>
           </a>
 
-          <a
-            href="#"
-            rel="noopener noreferrer"
-            className={styles.card}
-          >
+          <div className={styles.card}>
             <h2>Áreas de atuação</h2>
             <ul>
               {((!activity || activity === undefined) &&
@@ -145,13 +113,10 @@ export default function Home(props:any)
                 ))
               }
             </ul>
-          </a>
+            <ActivityForm url='api/activity/create' type='POST'/>
+          </div>
 
-          <a
-          href='#'
-          rel="noopener noreferrer"
-          className={styles.card}
-          >
+          <div className={styles.card}>
             <h2>usuários</h2>
             <ul>
               {((!user || user === undefined) &&
@@ -162,12 +127,15 @@ export default function Home(props:any)
                 <li key={user.id}>{user.name} - Role: {user.role.toLowerCase()}</li>
               ))}
             </ul>
+            <UserSimpleForm url='api/user/create' type='POST'/>
+          </div>
 
-          </a>
-
-          <ActivityForm url='api/activity/create' type='POST'/>
+          
+          
 
         </div>
+
+        
       </main>
 
       <footer className={styles.footer}>

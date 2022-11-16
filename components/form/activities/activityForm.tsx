@@ -2,7 +2,6 @@ import type {NextPage} from 'next'
 import {useForm} from "react-hook-form";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import styles from '../../styles/Home.module.css'
 
 interface IFormInput 
 {
@@ -24,6 +23,7 @@ const ActivityForm: NextPage<Props> = (props) =>
         handleSubmit,
         watch,
         setError,
+        reset,
         formState: { isSubmitting, errors }
       } = useForm<IFormInput>();
 
@@ -54,6 +54,10 @@ const ActivityForm: NextPage<Props> = (props) =>
         else if (response.ok) 
         {
             toast.success("Área de atuação salva com sucesso")
+            reset({
+                name:'',
+                color:'',
+            })
             
             console.log('sucesso')
         } 
@@ -69,13 +73,13 @@ const ActivityForm: NextPage<Props> = (props) =>
             <h3>Cadastro de áreas de atuação</h3>
             <label htmlFor="name">Nome</label>
             <input type="text" autoComplete="name" {...register("name", {required: true, maxLength:20})} />
-            {errors?.name?.type === "required" && <p className={styles.error}>Campo NOME é obrigatório</p>}
-            {errors?.name?.type === "maxLength" && (<p className={styles.error}>O campo NOME não pode ser maior que 20 carcteres</p>)}
+            {errors?.name?.type === "required" && <p className='error'>Campo NOME é obrigatório</p>}
+            {errors?.name?.type === "maxLength" && (<p className='error'>O campo NOME não pode ser maior que 20 carcteres</p>)}
             
             <label htmlFor="color">Cor</label>
             <input type="text" autoComplete="color" {...register("color", {required: true, maxLength:11})} />
-            {errors?.color?.type === "required" && <p className={styles.error}>Campo COR é obrigatório</p>}
-            {errors?.color?.type === "maxLength" && (<p className={styles.error}>O campo COR não pode ser maior que 11 carcteres</p>)}
+            {errors?.color?.type === "required" && <p className='error'>Campo COR é obrigatório</p>}
+            {errors?.color?.type === "maxLength" && (<p className='error'>O campo COR não pode ser maior que 11 carcteres</p>)}
             
             <button disabled={isSubmitting}>
             {isSubmitting ? "salvando..." : "Submit"}
