@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(req: NextApiRequest, resp: NextApiResponse)
 {
-    const { email, name, lastname, role, avatar, birth_date, cpf, rg, sex, password} = req.body
+    const { name, color} = req.body
 
     try 
     {
@@ -12,24 +12,16 @@ export default async function handler(req: NextApiRequest, resp: NextApiResponse
             return resp.status(405).json({message:'Method not allowed'});
         }
 
-        await prisma.user.create(
+        await prisma.areaActivity.create(
         {
             data:
             {
-                email, 
                 name,
-                lastname,
-                role,
-                avatar,
-                birth_date,
-                cpf,
-                rg,
-                sex,
-                password
+                color
             }
         })
 
-        resp.status(201).json({ message:'Usuário criado com sucesso'})
+        resp.status(201).json({ message:'Área de atuação criada com sucesso'})
     } 
     catch (error) 
     {

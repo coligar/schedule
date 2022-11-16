@@ -4,6 +4,7 @@ import styles from '../styles/Home.module.css'
 import { useState } from 'react';
 import { prisma } from '../lib/prisma';
 import { useGetData } from '../hooks/useRequest';
+import ActivityForm from '../components/form/activity';
 
 interface IUser
 {
@@ -18,10 +19,12 @@ export async function getServerSideProps()
 {
   const users = await prisma.user.findMany()
   const schedule = await prisma.schedule.findMany()
+  const activity = await prisma.areaActivity.findMany()
   return{
     props:{
       schedule: JSON.parse(JSON.stringify(schedule)),
       users: JSON.parse(JSON.stringify(users)),
+      activity: JSON.parse(JSON.stringify(activity)),
     }
   }
 }
@@ -31,10 +34,10 @@ export default function Home(props:any)
 {
   const [agendas, setAgenda] = useState(props.schedule)
   const [usuarios, setUser] = useState(props.users)
+  const [activity, setActivity] = useState(props.activity)
   const {data: user} = useGetData('api/user')
   const {data: schedule} = useGetData('api/schedule')
 
-  console.log(agendas, usuarios)
   const create = async (data:IUser) => {
     try 
     {
@@ -112,7 +115,6 @@ export default function Home(props:any)
             href="#"
             rel="noopener noreferrer"
             className={styles.card}
-            onClick={() => create({email:'mariac@gmail.com', name: 'Maria Tertulina', role:'USER', avatar:'https://www.torredevigilancia.com/wp-content/uploads/2019/10/coringa-55.jpg'})}
           >
             <h2>Agenda</h2>
             <ul>
@@ -122,6 +124,24 @@ export default function Home(props:any)
               { (schedule && schedule !== undefined) &&
                 schedule.map((agenda:any) =>(
                   <li key={agenda.id}>{agenda.day}</li>
+                ))
+              }
+            </ul>
+          </a>
+
+          <a
+            href="#"
+            rel="noopener noreferrer"
+            className={styles.card}
+          >
+            <h2>Áreas de atuação</h2>
+            <ul>
+              {((!activity || activity === undefined) &&
+                <li>Carregando</li>
+              )}
+              { (activity && activity !== undefined) &&
+                activity.map((activity:any) =>(
+                  <li key={activity.id}>Nome: {activity.name} | Cor: {activity.color}</li>
                 ))
               }
             </ul>
@@ -144,6 +164,9 @@ export default function Home(props:any)
             </ul>
 
           </a>
+
+          <ActivityForm url='api/activity/create' type='POST'/>
+
         </div>
       </main>
 
