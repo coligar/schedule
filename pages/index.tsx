@@ -1,11 +1,13 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { prisma } from '../lib/prisma';
+import axios from 'axios'
 import { useGetData } from '../hooks/useRequest';
 import ActivityForm from '../components/form/activities/activityForm';
 import UserSimpleForm from '../components/form/users/userSimpleForm';
+import { stringify } from 'querystring';
 
 interface IUser
 {
@@ -36,8 +38,36 @@ export default function Home(props:any)
   const [agendas, setAgenda] = useState(props.schedule)
   const [usuarios, setUser] = useState(props.users)
   const [activity, setActivity] = useState(props.activity)
+
+  const [activityArea, setActivityArea] = useState()
+  const [dataUser, setDataUser] = useState()
   const {data: user} = useGetData('api/user')
   const {data: schedule} = useGetData('api/schedule')
+
+  console.log(user)
+
+  const editActivityArea = async (id:string) =>
+  {
+    let data = await axios.get(`api/activity/${id}`).then(res => res.data)
+    setActivityArea(data)
+  }
+
+  const deleteActivityArea = async (id:string) =>
+  {
+    return await axios.delete(`api/activity/${id}`).then(res => res.data)
+  }
+
+  const editUser = async (id:string) =>
+  {
+    let data = await axios.get(`api/user/${id}`).then(res => res.data)
+    setDataUser(data)
+  }
+
+  const deleteUser = async (id:string) =>
+  {
+    return await axios.delete(`api/user/${id}`).then(res => res.data)
+  }
+
 
   const create = async (data:IUser) => {
     try 
@@ -109,11 +139,14 @@ export default function Home(props:any)
               )}
               { (activity && activity !== undefined) &&
                 activity.map((activity:any) =>(
-                  <li key={activity.id}>Nome: {activity.name} | Cor: {activity.color}</li>
+                  <li key={activity.id} >
+                    <span onClick={() => editActivityArea(activity.id)}>Nome: {activity.name} | Cor: {activity.color}</span> -  
+                    <span onClick={() => deleteActivityArea(activity.id)}>excluir</span>
+                  </li>
                 ))
               }
             </ul>
-            <ActivityForm url='api/activity/create' type='POST'/>
+            <ActivityForm url='api/activity' type='POST' dados={activityArea}/>
           </div>
 
           <div className={styles.card}>
@@ -124,10 +157,13 @@ export default function Home(props:any)
               )}
               { (user && user !== undefined) &&
                 user.map((user:any) => (
-                <li key={user.id}>{user.name} - Role: {user.role.toLowerCase()}</li>
+                <li key={user.id}>
+                  <span onClick={() => editUser(user.id)}>{user.name} - Role: {user.role.toLowerCase()}</span> -
+                  <span onClick={() => deleteUser(user.id)}>excluir</span>
+                </li>
               ))}
             </ul>
-            <UserSimpleForm url='api/user/create' type='POST'/>
+            <UserSimpleForm url='api/user' type='POST' dados={dataUser}/>
           </div>
 
           

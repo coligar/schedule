@@ -5,41 +5,62 @@ import 'react-toastify/dist/ReactToastify.css';
 
 interface IFormInput 
 {
-    name: string;
-    lastname: string;
-    email: string;
-    role: string | null;
-    sex: string | null;
+    name: string
+    lastname: string
+    email: string
+    role: string | null
+    sex: string | null
 }
 
 interface Props 
 {
-    url: string;
+    url: string
     type: string
+    dados: any
 }
 
 const UserSimpleForm: NextPage<Props> = (props) => 
 {
-    const { url, type } = props;
+    const { url, type, dados } = props;
     const {
         register,
         handleSubmit,
         watch,
         setError,
         reset,
+        setValue,
         formState: { isSubmitting, errors }
       } = useForm<IFormInput>();
 
-      //console.log(watch("name"));
+    if(dados || dados !== undefined)
+    {
+        setValue("name", dados.name);
+        setValue("lastname", dados.lastname)
+        setValue("email", dados.email)
+        setValue("role", dados.role)
+        setValue("sex", dados.sex)
+    }
     
     async function saveFormData(data: IFormInput) 
     {
-        return await fetch(url, 
+        if(!dados || dados === undefined)
         {
-            body: JSON.stringify(data),
-            headers: {"Content-Type": "application/json"},
-            method: type
-        })
+            return await fetch(url, 
+            {
+                body: JSON.stringify(data),
+                headers: {"Content-Type": "application/json"},
+                method: type
+            })
+        }
+        else
+        {            
+            return await fetch(`${url}/${dados.id}`, 
+            {
+                body: JSON.stringify(data),
+                headers: {"Content-Type": "application/json"},
+                method: 'PUT'
+            })
+        }
     }
 
 

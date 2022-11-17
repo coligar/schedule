@@ -2,41 +2,62 @@ import type {NextPage} from 'next'
 import {useForm} from "react-hook-form";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import axios from 'axios';
 
 interface IFormInput 
 {
-    name: string;
-    color: string;
+    name: string
+    color: string
 }
 
 interface Props 
 {
-    url: string;
+    url: string
     type: string
+    dados: any
 }
 
 const ActivityForm: NextPage<Props> = (props) => 
 {
-    const { url, type } = props;
+    const { url, type, dados } = props
+
     const {
         register,
         handleSubmit,
         watch,
         setError,
         reset,
+        setValue,
         formState: { isSubmitting, errors }
       } = useForm<IFormInput>();
 
-      //console.log(watch("name"));
+    if(dados || dados !== undefined)
+    {
+        setValue("name", dados.name);
+        setValue("color", dados.color)
+    }
     
     async function saveFormData(data: IFormInput) 
     {
-        return await fetch(url, 
+        if(!dados || dados === undefined)
         {
-            body: JSON.stringify(data),
-            headers: {"Content-Type": "application/json"},
-            method: type
-        })
+            return await fetch(url, 
+            {
+                body: JSON.stringify(data),
+                headers: {"Content-Type": "application/json"},
+                method: type
+            })
+        }
+        else
+        {            
+            return await fetch(`${url}/${dados.id}`, 
+            {
+                body: JSON.stringify(data),
+                headers: {"Content-Type": "application/json"},
+                method: 'PUT'
+            })
+        }
+
     }
 
 
