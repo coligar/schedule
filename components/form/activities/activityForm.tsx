@@ -1,8 +1,11 @@
 import type {NextPage} from 'next'
-import {useForm} from "react-hook-form";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import {useForm, UseFormSetValue} from "react-hook-form"
+import { yupResolver } from '@hookform/resolvers/yup'
+import * as yup from "yup"
+import { toast } from 'react-toastify';
 import axios from 'axios';
+import { mutate } from 'swr';
+import { useEffect } from 'react';
 
 interface IFormInput 
 {
@@ -17,6 +20,20 @@ interface Props
     dados: any
 }
 
+const fieldvalidations = yup.object({
+    name: yup.string().required('Campo obrigatório').max(20,'Permitido no máximo 20 caracteres'),
+    color: yup.string().required('Campo obrigatório').max(11, 'Permitido no máximo 11 caracteres'),
+})
+
+const setInputValues = (data:any, setValue:UseFormSetValue<IFormInput>) =>
+{
+    if(data || data !== undefined)
+    {
+        setValue("name", data.name);
+        setValue("color", data.color)
+    }
+}
+
 const ActivityForm: NextPage<Props> = (props) => 
 {
     const { url, type, dados } = props
@@ -29,13 +46,17 @@ const ActivityForm: NextPage<Props> = (props) =>
         reset,
         setValue,
         formState: { isSubmitting, errors }
-      } = useForm<IFormInput>();
+      } = useForm<IFormInput>(
+        {
+            resolver: yupResolver(fieldvalidations)
+        }
+    )
 
-    if(dados || dados !== undefined)
+    useEffect(() =>
     {
-        setValue("name", dados.name);
-        setValue("color", dados.color)
-    }
+        setInputValues(dados, setValue)
+
+    },[dados, setValue])
     
     async function saveFormData(data: IFormInput) 
     {
@@ -64,6 +85,8 @@ const ActivityForm: NextPage<Props> = (props) =>
     const onSubmit = async (data: IFormInput) => 
     {
         const response = await saveFormData(data)
+        let resp = await response.json()
+        
         if (response.status === 400) 
         {
             const fieldToErrorMessage:{[fieldName: string]: string} = await response.json()
@@ -74,17 +97,20 @@ const ActivityForm: NextPage<Props> = (props) =>
         } 
         else if (response.ok) 
         {
-            toast.success("Área de atuação salva com sucesso")
-            reset({
-                name:'',
-                color:'',
-            })
-            
-            console.log('sucesso')
+            if(!dados || dados === undefined)
+            {
+                reset({
+                    name:'',
+                    color:'',
+                })
+            }
+
+            toast.success(resp.message, { hideProgressBar: false, autoClose: 2000 })
+            mutate('/api/activity');
         } 
         else 
         {
-            toast.error("An unexpected error occurred while saving, please try again")
+            toast.error(resp.message, { hideProgressBar: false, autoClose: 2000 })
         }
     }
 
@@ -94,13 +120,11 @@ const ActivityForm: NextPage<Props> = (props) =>
             <h3>Cadastro de áreas de atuação</h3>
             <label htmlFor="name">Nome</label>
             <input type="text" autoComplete="name" {...register("name", {required: true, maxLength:20})} />
-            {errors?.name?.type === "required" && <p className='error'>Campo NOME é obrigatório</p>}
-            {errors?.name?.type === "maxLength" && (<p className='error'>O campo NOME não pode ser maior que 20 carcteres</p>)}
+            <p className='error'>{errors.name?.message}</p>
             
             <label htmlFor="color">Cor</label>
             <input type="text" autoComplete="color" {...register("color", {required: true, maxLength:11})} />
-            {errors?.color?.type === "required" && <p className='error'>Campo COR é obrigatório</p>}
-            {errors?.color?.type === "maxLength" && (<p className='error'>O campo COR não pode ser maior que 11 carcteres</p>)}
+            <p className='error'>{errors.color?.message}</p>
             
             <button disabled={isSubmitting}>
             {isSubmitting ? "salvando..." : "Submit"}

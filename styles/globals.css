@@ -53,7 +53,7 @@ p.error {
 
 p.error::before {
   display: inline;
-  content: "⚠ ";
+  /*content: "⚠ ";*/
 }
 
 input {

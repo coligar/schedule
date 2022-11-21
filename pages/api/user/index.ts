@@ -26,7 +26,6 @@ export default async function handler(req: NextApiRequest, resp: NextApiResponse
 
         if(req.method === 'POST')
         {
-
             await prisma.user.create(
             {
                 data:
@@ -44,7 +43,7 @@ export default async function handler(req: NextApiRequest, resp: NextApiResponse
                 }
             })
         
-            response = {message:'Área de atuação criada com sucesso'}
+            response = {message:'Usuário cadastrado com sucesso'}
             status_code = 201
         }
 
@@ -54,6 +53,6 @@ export default async function handler(req: NextApiRequest, resp: NextApiResponse
     catch (error:any) 
     {
         console.log(error)
-        resp.status(error.code).json({message:error})
+        //resp.status(error.code).json({message:error})
     }
 }

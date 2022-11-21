@@ -1,13 +1,16 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { prisma } from '../lib/prisma';
 import axios from 'axios'
 import { useGetData } from '../hooks/useRequest';
 import ActivityForm from '../components/form/activities/activityForm';
 import UserSimpleForm from '../components/form/users/userSimpleForm';
-import { stringify } from 'querystring';
+import ActivityFormList from '../components/form/activities/activityFormList';
+import UsersSimpleList from '../components/form/users/usersSimpleList';
+import { toast } from 'react-toastify';
+import useSWR, { mutate, SWRConfig } from 'swr';
 
 interface IUser
 {
@@ -17,82 +20,60 @@ interface IUser
   avatar?: string;
 }
 
+interface IGetUserData
+{
+  onClick: (data:IUser) => void
+}
+
+interface IGetActivityAreas
+{
+  onClick: (data:any) => void
+}
+
 
 export async function getServerSideProps()
 {
   const users = await prisma.user.findMany()
+  //const users = axios.get('http://localhost:3000/api/user/').then((res) => res.data)
   const schedule = await prisma.schedule.findMany()
   const activity = await prisma.areaActivity.findMany()
   return{
     props:{
       schedule: JSON.parse(JSON.stringify(schedule)),
-      users: JSON.parse(JSON.stringify(users)),
       activity: JSON.parse(JSON.stringify(activity)),
+      fallback:{
+        '/api/user':JSON.stringify(users),
+        '/api/activity':JSON.stringify(activity),
+      }
     }
   }
 }
 
 
-export default function Home(props:any)
+
+export default function Home(props:any, fallback:any)
 {
   const [agendas, setAgenda] = useState(props.schedule)
-  const [usuarios, setUser] = useState(props.users)
-  const [activity, setActivity] = useState(props.activity)
-
+  const [users, setUsers] = useState(props.users)
   const [activityArea, setActivityArea] = useState()
-  const [dataUser, setDataUser] = useState()
-  const {data: user} = useGetData('api/user')
+  const [dataUser, setDataUser] = useState<IUser>()
   const {data: schedule} = useGetData('api/schedule')
+  //const {data: activity} = useGetData('api/activity')
+  //const {data: users} = useGetData('api/user')
 
-  console.log(user)
+  const loading = 'loading'
 
-  const editActivityArea = async (id:string) =>
+  const getUserData = (data: IUser) => 
   {
-    let data = await axios.get(`api/activity/${id}`).then(res => res.data)
-    setActivityArea(data)
-  }
-
-  const deleteActivityArea = async (id:string) =>
-  {
-    return await axios.delete(`api/activity/${id}`).then(res => res.data)
-  }
-
-  const editUser = async (id:string) =>
-  {
-    let data = await axios.get(`api/user/${id}`).then(res => res.data)
     setDataUser(data)
   }
 
-  const deleteUser = async (id:string) =>
+  const getActivityArea = (data:any) =>
   {
-    return await axios.delete(`api/user/${id}`).then(res => res.data)
+    setActivityArea(data)
   }
 
 
-  const create = async (data:IUser) => {
-    try 
-    {
-      const response = await fetch('/api/user/create',
-      {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers:{
-          'Content-Type': 'application/json'
-        }
-      })
-
-      if(!response.ok)
-      {
-        throw new Error(response.statusText);
-      }
-
-      return await response.json();
-    } 
-    catch (error) 
-    {
-      console.log('Failure')
-    }
-  }
   return (
     <div className={styles.container}>
       <Head>
@@ -132,42 +113,20 @@ export default function Home(props:any)
           </a>
 
           <div className={styles.card}>
-            <h2>Áreas de atuação</h2>
-            <ul>
-              {((!activity || activity === undefined) &&
-                <li>Carregando</li>
-              )}
-              { (activity && activity !== undefined) &&
-                activity.map((activity:any) =>(
-                  <li key={activity.id} >
-                    <span onClick={() => editActivityArea(activity.id)}>Nome: {activity.name} | Cor: {activity.color}</span> -  
-                    <span onClick={() => deleteActivityArea(activity.id)}>excluir</span>
-                  </li>
-                ))
-              }
-            </ul>
+            <SWRConfig value={fallback}>
+              <ActivityFormList onClick={getActivityArea}/>
+            </SWRConfig>
+
             <ActivityForm url='api/activity' type='POST' dados={activityArea}/>
           </div>
 
           <div className={styles.card}>
-            <h2>usuários</h2>
-            <ul>
-              {((!user || user === undefined) &&
-                <li>Carregando</li>
-              )}
-              { (user && user !== undefined) &&
-                user.map((user:any) => (
-                <li key={user.id}>
-                  <span onClick={() => editUser(user.id)}>{user.name} - Role: {user.role.toLowerCase()}</span> -
-                  <span onClick={() => deleteUser(user.id)}>excluir</span>
-                </li>
-              ))}
-            </ul>
+            <SWRConfig value={fallback}>
+              <UsersSimpleList onClick={getUserData}/>
+            </SWRConfig>
+           
             <UserSimpleForm url='api/user' type='POST' dados={dataUser}/>
           </div>
-
-          
-          
 
         </div>
 
@@ -189,3 +148,5 @@ export default function Home(props:any)
     </div>
   )
 }
+
+
